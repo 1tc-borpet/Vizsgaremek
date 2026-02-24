@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\MenuItem;
 use App\Models\RestaurantTable;
+use App\Events\OrderCreated;
+use App\Events\OrderStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -108,6 +110,9 @@ class OrderController extends Controller
                 'total' => $total,
                 'estimated_completion_time' => now()->addMinutes(30),
             ]);
+
+            // WebSocket broadcast: új rendelés
+            OrderCreated::dispatch($order->load('items.menuItem'));
 
             return response()->json([
                 'success' => true,
@@ -220,6 +225,7 @@ class OrderController extends Controller
     {
         try {
             $order = Order::findOrFail($id);
+            $oldStatus = $order->status;
             
             $validated = $request->validate([
                 'status' => 'required|in:pending,confirmed,preparing,ready,served,completed,cancelled',
@@ -239,6 +245,9 @@ class OrderController extends Controller
             if ($validated['status'] === 'completed') {
                 $order->update(['completed_at' => now()]);
             }
+            
+            // WebSocket broadcast: rendelés státusz változás
+            OrderStatusChanged::dispatch($order, $oldStatus, $validated['status']);
             
             return response()->json([
                 'success' => true,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Reservation;
 use App\Models\RestaurantTable;
+use App\Events\ReservationStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -264,10 +265,15 @@ class ReservationController extends Controller
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
+            $oldStatus = $reservation->status;
+
             $reservation->update([
                 'status' => 'confirmed',
                 'confirmed_at' => now(),
             ]);
+
+            // WebSocket broadcast: foglalás státusz változás
+            ReservationStatusChanged::dispatch($reservation, $oldStatus, 'confirmed');
 
             return response()->json([
                 'success' => true,
