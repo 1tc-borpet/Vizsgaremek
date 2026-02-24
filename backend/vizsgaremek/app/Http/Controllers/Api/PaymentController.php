@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PaymentController extends Controller
 {
@@ -14,10 +15,22 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = Payment::with('order')
-            ->latest()
-            ->paginate(15);
-        return response()->json($payments);
+        try {
+            $payments = Payment::with('order')
+                ->latest()
+                ->paginate(15);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $payments,
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hiba a fizetések lekérésekor.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -25,34 +38,74 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'payment_method' => 'required|string|in:card,cash,online',
-            'amount' => 'required|numeric|min:0.01',
-        ]);
+        try {
+            $validated = $request->validate([
+                'order_id' => 'required|exists:orders,id',
+                'payment_method' => 'required|string|in:card,cash,online',
+                'amount' => 'required|numeric|min:0.01',
+            ]);
 
-        $order = Order::findOrFail($validated['order_id']);
+            $order = Order::findOrFail($validated['order_id']);
 
-        // Szimulált fizetés feldolgozás
-        $transactionId = 'TXN-' . time() . '-' . rand(10000, 99999);
-        
-        $payment = Payment::create([
-            'order_id' => $validated['order_id'],
-            'payment_method' => $validated['payment_method'],
-            'amount' => $validated['amount'],
-            'status' => 'completed', // szimulált fizetés
-            'transaction_id' => $transactionId,
-            'paid_at' => now(),
-            'metadata' => [
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ],
-        ]);
+            // Validáció: fizetett-e már
+            if ($order->payment()->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ez a rendelés már ki van fizetve.',
+                ], Response::HTTP_CONFLICT);
+            }
 
-        // Rendelés státusza frissítése
-        $order->update(['status' => 'confirmed']);
+            // Validáció: az összeg helyes-e
+            if (abs($validated['amount'] - (float)$order->total) > 0.01) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A fizetendő összeg nem helyes. Várt: ' . $order->total,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
 
-        return response()->json($payment, 201);
+            // Szimulált fizetés feldolgozás
+            $transactionId = 'TXN-' . time() . '-' . rand(10000, 99999);
+            
+            // Szimulált sikeres fizetés (90% eséllyel)
+            $isSuccessful = rand(1, 100) <= 90;
+            
+            $payment = Payment::create([
+                'order_id' => $validated['order_id'],
+                'payment_method' => $validated['payment_method'],
+                'amount' => $validated['amount'],
+                'status' => $isSuccessful ? 'completed' : 'failed',
+                'transaction_id' => $transactionId,
+                'paid_at' => $isSuccessful ? now() : null,
+                'metadata' => [
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'payment_gateway' => 'simulated',
+                ],
+            ]);
+
+            // Ha sikeres a fizetés, módosítsd a rendelés státuszát
+            if ($isSuccessful) {
+                $order->update(['status' => 'confirmed']);
+            }
+
+            return response()->json([
+                'success' => $isSuccessful,
+                'message' => $isSuccessful ? 'Fizetés sikeresen feldolgozva.' : 'A fizetés feldolgozása sikertelen volt.',
+                'data' => $payment,
+            ], $isSuccessful ? Response::HTTP_CREATED : Response::HTTP_PAYMENT_REQUIRED);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validációs hiba.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hiba a fizetés feldolgozásakor.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -60,9 +113,26 @@ class PaymentController extends Controller
      */
     public function show(string $id)
     {
-        $payment = Payment::with('order')
-            ->findOrFail($id);
-        return response()->json($payment);
+        try {
+            $payment = Payment::with('order')
+                ->findOrFail($id);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $payment,
+            ], Response::HTTP_OK);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A fizetés nem található.',
+            ], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hiba a fizetés lekérésekor.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -70,23 +140,40 @@ class PaymentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $payment = Payment::findOrFail($id);
-        
-        $validated = $request->validate([
-            'status' => 'sometimes|in:pending,completed,failed,refunded',
-        ]);
+        try {
+            $payment = Payment::findOrFail($id);
+            
+            $validated = $request->validate([
+                'status' => 'sometimes|in:pending,completed,failed,refunded',
+            ]);
 
-        $payment->update($validated);
-        return response()->json($payment);
-    }
+            // Csak pending státuszból lehet módosítani
+            if ($payment->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Csak feldolgozás alatt álló fizetés módosítható.',
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        Payment::findOrFail($id)->delete();
-        return response()->json(null, 204);
+            $payment->update($validated);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Fizetés sikeresen frissítve.',
+                'data' => $payment,
+            ], Response::HTTP_OK);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A fizetés nem található.',
+            ], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hiba a fizetés frissítésekor.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
 
