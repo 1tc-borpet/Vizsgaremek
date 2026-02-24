@@ -34,7 +34,7 @@
               <tr>
                 <td>#{{ order.id }}</td>
                 <td>{{ order.order_type }}</td>
-                <td>{{ order.items?.length || 0 }} db</td>
+                <td>{{ order.items?.length ?? 0 }} db</td>
                 <td>{{ order.total_amount | number:'1.0-0' }} Ft</td>
                 <td><span class="badge badge-{{ order.status }}">{{ statusLabel(order.status) }}</span></td>
                 <td>{{ order.created_at | date:'MM.dd HH:mm' }}</td>
