@@ -1,0 +1,108 @@
+<div class="page-hero">
+  @if (restaurant) {
+    <h1>{{ restaurant.name }}</h1>
+    <p>{{ restaurant.description }}</p>
+  } @else {
+    <h1>Étlap</h1>
+    <p>Böngéssz ízletes fogásaink között</p>
+  }
+</div>
+
+@if (loading) {
+  <div class="spinner"></div>
+}
+
+@if (!loading && categories.length > 0) {
+  <div class="menu-layout container">
+    <!-- Sidebar: Category nav -->
+    <aside class="category-nav">
+      <h3>Kategóriák</h3>
+      @for (cat of categories; track cat.id) {
+        <button
+          class="cat-btn"
+          [class.active]="activeCategory === cat.id"
+          (click)="scrollTo(cat.id)">
+          {{ cat.name }}
+        </button>
+      }
+      @if (cart.totalItems() > 0) {
+        <div class="cart-summary">
+          <div class="cart-count">🛒 {{ cart.totalItems() }} tétel</div>
+          <div class="cart-total">{{ cart.totalPrice() | number:'1.0-0' }} Ft</div>
+          <a routerLink="/cart" class="btn btn-primary btn-full">Kosár →</a>
+        </div>
+      }
+    </aside>
+
+    <!-- Main: Items -->
+    <main class="menu-main">
+      @for (cat of categories; track cat.id) {
+        <section [id]="'cat-' + cat.id" class="category-section">
+          <h2 class="category-title">{{ cat.name }}</h2>
+          @if (cat.description) {
+            <p class="category-desc">{{ cat.description }}</p>
+          }
+
+          <div class="items-grid">
+            @for (item of getItems(cat.id); track item.id) {
+              <div class="menu-item-card" [class.unavailable]="!item.is_available">
+                <div class="item-image">
+                  @if (item.image_url) {
+                    <img [src]="item.image_url" [alt]="item.name" />
+                  } @else {
+                    <div class="item-placeholder">🍽️</div>
+                  }
+                  @if (!item.is_available) {
+                    <div class="unavailable-badge">Nem elérhető</div>
+                  }
+                </div>
+                <div class="item-info">
+                  <div class="item-header">
+                    <h4>{{ item.name }}</h4>
+                    @if (item.rating) {
+                      <span class="item-rating">⭐ {{ item.rating }}</span>
+                    }
+                  </div>
+                  @if (item.description) {
+                    <p class="item-desc">{{ item.description }}</p>
+                  }
+                  <div class="item-meta">
+                    @if (item.preparation_time) {
+                      <span class="prep-time">⏱️ {{ item.preparation_time }} perc</span>
+                    }
+                  </div>
+                  <div class="item-footer">
+                    <span class="item-price">{{ item.price | number:'1.0-0' }} Ft</span>
+                    @if (item.is_available) {
+                      @if (getCartQuantity(item.id) === 0) {
+                        <button class="btn btn-primary btn-add" (click)="addToCart(item)">
+                          + Kosárba
+                        </button>
+                      } @else {
+                        <div class="qty-controls">
+                          <button (click)="cart.updateQuantity(item.id, getCartQuantity(item.id) - 1)">−</button>
+                          <span>{{ getCartQuantity(item.id) }}</span>
+                          <button (click)="cart.updateQuantity(item.id, getCartQuantity(item.id) + 1)">+</button>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </main>
+  </div>
+}
+
+@if (!loading && categories.length === 0) {
+  <div class="container">
+    <div class="empty-state">
+      <div class="empty-icon">🍽️</div>
+      <h3>Az étlap hamarosan elérhető</h3>
+      <p>Kérjük látogass vissza később!</p>
+    </div>
+  </div>
+}

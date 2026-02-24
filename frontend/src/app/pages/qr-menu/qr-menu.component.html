@@ -1,0 +1,47 @@
+<div class="qr-hero">
+  @if (restaurant) {
+    <h1>{{ restaurant.name }}</h1>
+    <p>Szkenneld be a QR-kódot a menü megtekintéséhez</p>
+  } @else {
+    <h1>QR Menü</h1>
+  }
+  <canvas #qrCanvas class="qr-canvas"></canvas>
+  <p class="qr-url">{{ qrUrl }}</p>
+</div>
+
+@if (loading) { <div class="spinner"></div> }
+
+<div class="container qr-menu-content">
+  @for (cat of categories; track cat.id) {
+    <section class="qr-category">
+      <h2 class="category-title">{{ cat.name }}</h2>
+      <div class="qr-items-grid">
+        @for (item of getItems(cat.id); track item.id) {
+          <div class="qr-item-card" [class.unavailable]="!item.is_available">
+            <div class="qr-item-img">
+              @if (item.image_url) {
+                <img [src]="item.image_url" [alt]="item.name" />
+              } @else {
+                <div class="img-ph">🍽️</div>
+              }
+            </div>
+            <div class="qr-item-info">
+              <h4>{{ item.name }}</h4>
+              @if (item.description) { <p>{{ item.description }}</p> }
+              <div class="qr-item-footer">
+                <span class="price">{{ item.price | number:'1.0-0' }} Ft</span>
+                @if (item.rating) { <span class="rating">⭐ {{ item.rating }}</span> }
+                @if (!item.is_available) { <span class="unavail">Nem elérhető</span> }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <div class="qr-footer">
+    <a routerLink="/menu" class="btn btn-primary">Online rendelés →</a>
+    <a routerLink="/reservation" class="btn btn-outline">Asztalfoglalás</a>
+  </div>
+</div>

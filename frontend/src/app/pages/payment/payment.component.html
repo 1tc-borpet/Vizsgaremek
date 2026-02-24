@@ -1,0 +1,95 @@
+<div class="page-hero">
+  <h1>💳 Fizetés</h1>
+  <p>Biztonságos szimulált online fizetés</p>
+</div>
+
+<div class="container section">
+  @if (orderLoading) { <div class="spinner"></div> }
+
+  @if (!orderLoading && success) {
+    <div class="success-card card">
+      <div class="success-icon">✅</div>
+      <h2>Sikeres fizetés!</h2>
+      <p>A rendelésed befogadtuk. Hamarosan értesítünk az állapotáról.</p>
+      <div class="success-actions">
+        <a routerLink="/orders" class="btn btn-primary">Rendeléseim megtekintése</a>
+        <a routerLink="/" class="btn btn-outline">Vissza a főoldalra</a>
+      </div>
+    </div>
+  }
+
+  @if (!orderLoading && !success) {
+    <div class="payment-layout">
+      <div class="payment-form card">
+        <h3>Fizetési adatok</h3>
+
+        @if (error) {
+          <div class="alert alert-danger">⚠️ {{ error }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <!-- Method -->
+          <div class="form-group">
+            <label>Fizetési mód</label>
+            <div class="method-grid">
+              @for (m of [{val:'credit_card',label:'💳 Hitelkártya'},{val:'debit_card',label:'💳 Bankkártya'},{val:'cash',label:'💵 Készpénz'}]; track m.val) {
+                <label class="method-option" [class.selected]="form.get('method')?.value === m.val">
+                  <input type="radio" formControlName="method" [value]="m.val" hidden />
+                  {{ m.label }}
+                </label>
+              }
+            </div>
+          </div>
+
+          @if (form.get('method')?.value !== 'cash') {
+            <div class="card-section">
+              <div class="form-group">
+                <label>Kártyabirtokos neve</label>
+                <input type="text" formControlName="card_holder" placeholder="Kovács János" />
+              </div>
+              <div class="form-group">
+                <label>Kártyaszám</label>
+                <input type="text" formControlName="card_number" placeholder="1234567890123456" maxlength="16" />
+              </div>
+              <div class="card-row">
+                <div class="form-group">
+                  <label>Lejárat (HH/ÉÉ)</label>
+                  <input type="text" formControlName="expiry" placeholder="12/28" maxlength="5" />
+                </div>
+                <div class="form-group">
+                  <label>CVV</label>
+                  <input type="text" formControlName="cvv" placeholder="123" maxlength="4" />
+                </div>
+              </div>
+            </div>
+          }
+
+          <button type="submit" class="btn btn-primary btn-full" [disabled]="loading || form.invalid">
+            @if (loading) { <span class="btn-spinner"></span> }
+            @if (order) { Fizetés – {{ order.total_amount | number:'1.0-0' }} Ft }
+          </button>
+        </form>
+      </div>
+
+      @if (order) {
+        <div class="order-info card">
+          <h3>Rendelés #{{ order.id }}</h3>
+          <div class="info-row"><span>Típus:</span><span>{{ order.order_type }}</span></div>
+          <div class="info-row"><span>Állapot:</span><span class="badge badge-{{ order.status }}">{{ order.status }}</span></div>
+          <div class="summary-divider"></div>
+          @for (item of order.items; track item.id) {
+            <div class="info-row small">
+              <span>{{ item.menu_item?.name }} × {{ item.quantity }}</span>
+              <span>{{ item.subtotal | number:'1.0-0' }} Ft</span>
+            </div>
+          }
+          <div class="summary-divider"></div>
+          <div class="info-row total">
+            <span>Összesen</span>
+            <span>{{ order.total_amount | number:'1.0-0' }} Ft</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

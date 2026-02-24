@@ -1,0 +1,99 @@
+.admin-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 64px);
+}
+
+.admin-sidebar {
+  background: #0f0f0f;
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 1rem;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+
+  .sidebar-brand {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 2rem;
+    padding-left: 0.5rem;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    a {
+      display: block;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      transition: all 0.2s;
+
+      &:hover { background: var(--bg-card2); color: var(--text-primary); }
+      &.active { background: rgba(255,107,53,0.15); color: var(--primary); font-weight: 600; }
+      &.back-link { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+    }
+  }
+}
+
+.admin-main {
+  padding: 2rem;
+
+  .admin-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.cat-section {
+  margin-bottom: 1.5rem;
+
+  .cat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h3 { font-size: 1.05rem; font-weight: 700; }
+  }
+}
+
+.items-table { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-card2);
+  border-radius: 6px;
+  font-size: 0.88rem;
+
+  &.unavailable { opacity: 0.55; }
+
+  .item-name { flex: 1; font-weight: 500; }
+  .item-price { color: var(--primary); font-weight: 600; }
+  .item-rating { color: #f7c59f; font-size: 0.8rem; }
+
+  .unavail-tag {
+    display: inline-block;
+    background: rgba(244,67,54,0.2);
+    color: #f44336;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-layout { grid-template-columns: 1fr; }
+  .admin-sidebar { position: static; height: auto; }
+}

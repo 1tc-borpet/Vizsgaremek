@@ -1,0 +1,37 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <a routerLink="/" class="nav-brand" (click)="closeMenu()">
+      <span class="brand-icon">🍽️</span>
+      <span class="brand-name">DineHub</span>
+    </a>
+
+    <button class="hamburger" (click)="toggleMenu()" [class.active]="mobileMenuOpen">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-links" [class.open]="mobileMenuOpen">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Főoldal</a>
+      <a routerLink="/menu" routerLinkActive="active" (click)="closeMenu()">Menü</a>
+      <a routerLink="/reservation" routerLinkActive="active" (click)="closeMenu()">Foglalás</a>
+
+      @if (auth.isLoggedIn()) {
+        <a routerLink="/orders" routerLinkActive="active" (click)="closeMenu()">Rendeléseim</a>
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="admin-link" (click)="closeMenu()">Admin</a>
+        }
+        <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()">{{ auth.currentUser()?.name }}</a>
+        <button class="btn-logout" (click)="auth.logout()">Kilépés</button>
+      } @else {
+        <a routerLink="/auth/login" routerLinkActive="active" (click)="closeMenu()">Bejelentkezés</a>
+        <a routerLink="/auth/register" class="btn-register" (click)="closeMenu()">Regisztráció</a>
+      }
+
+      <a routerLink="/cart" class="cart-btn" (click)="closeMenu()">
+        🛒
+        @if (cart.totalItems() > 0) {
+          <span class="cart-badge">{{ cart.totalItems() }}</span>
+        }
+      </a>
+    </div>
+  </div>
+</nav>

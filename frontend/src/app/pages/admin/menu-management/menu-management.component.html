@@ -1,0 +1,47 @@
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">🍽️ Admin</div>
+    <nav>
+      <a routerLink="/admin/dashboard" routerLinkActive="active">📊 Dashboard</a>
+      <a routerLink="/admin/orders" routerLinkActive="active">📦 Rendelések</a>
+      <a routerLink="/admin/reservations" routerLinkActive="active">📅 Foglalások</a>
+      <a routerLink="/admin/menu-management" routerLinkActive="active">🍽️ Étlap kezelés</a>
+      <a routerLink="/" class="back-link">← Vissza a főoldalra</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <h1 class="admin-title">🍽️ Étlap kezelés</h1>
+
+    @if (loading) { <div class="spinner"></div> }
+
+    @if (!loading) {
+      @for (cat of categories; track cat.id) {
+        <div class="cat-section card">
+          <div class="cat-header">
+            <h3>{{ cat.name }}</h3>
+            <span class="badge badge-confirmed">{{ getItems(cat.id).length }} étel</span>
+          </div>
+          <div class="items-table">
+            @for (item of getItems(cat.id); track item.id) {
+              <div class="item-row" [class.unavailable]="!item.is_available">
+                <div class="item-name">
+                  {{ item.name }}
+                  @if (!item.is_available) { <span class="unavail-tag">Nem elérhető</span> }
+                </div>
+                <span class="item-price">{{ item.price | number:'1.0-0' }} Ft</span>
+                @if (item.rating) { <span class="item-rating">⭐ {{ item.rating }}</span> }
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (categories.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">🍽️</div>
+          <p>Nincs étlap adat</p>
+        </div>
+      }
+    }
+  </main>
+</div>

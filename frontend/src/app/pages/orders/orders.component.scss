@@ -1,0 +1,41 @@
+.orders-list { display: flex; flex-direction: column; gap: 1.2rem; }
+
+.order-card {
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .order-type { color: var(--text-secondary); font-size: 0.85rem; }
+
+    .order-right { text-align: right; }
+    .order-date { display: block; color: var(--text-secondary); font-size: 0.78rem; margin-top: 0.3rem; }
+  }
+
+  .order-items {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.8rem 0;
+    margin-bottom: 0.8rem;
+  }
+
+  .order-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    padding: 0.25rem 0;
+  }
+
+  .order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .order-total { font-weight: 700; color: var(--primary); font-size: 1rem; }
+  }
+}
+
+.btn-sm { padding: 0.35rem 0.9rem; font-size: 0.85rem; }

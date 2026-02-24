@@ -1,0 +1,21 @@
+<div class="page-hero">
+  <h1>👤 Profilom</h1>
+</div>
+<div class="container section">
+  @if (auth.currentUser(); as user) {
+    <div class="profile-card card">
+      <div class="profile-avatar">{{ user.name[0].toUpperCase() }}</div>
+      <div class="profile-info">
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+        @if (user.phone) { <p>📞 {{ user.phone }}</p> }
+        <span class="badge badge-confirmed">{{ user.role === 'admin' ? '🛡️ Admin' : '👤 Felhasználó' }}</span>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <a routerLink="/orders" class="btn btn-outline">📦 Rendeléseim</a>
+      <a routerLink="/reservation" class="btn btn-outline">📅 Foglalásaim</a>
+      <button class="btn btn-danger" (click)="auth.logout()">🚪 Kilépés</button>
+    </div>
+  }
+</div>

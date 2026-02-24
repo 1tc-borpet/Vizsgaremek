@@ -1,0 +1,61 @@
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">🍽️ Admin</div>
+    <nav>
+      <a routerLink="/admin/dashboard" routerLinkActive="active">📊 Dashboard</a>
+      <a routerLink="/admin/orders" routerLinkActive="active">📦 Rendelések</a>
+      <a routerLink="/admin/reservations" routerLinkActive="active">📅 Foglalások</a>
+      <a routerLink="/admin/menu-management" routerLinkActive="active">🍽️ Étlap kezelés</a>
+      <a routerLink="/" class="back-link">← Vissza a főoldalra</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <h1 class="admin-title">📦 Rendelések kezelése</h1>
+
+    @if (loading) { <div class="spinner"></div> }
+
+    @if (!loading) {
+      <div class="table-wrapper card">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Típus</th>
+              <th>Tételek</th>
+              <th>Összeg</th>
+              <th>Állapot</th>
+              <th>Dátum</th>
+              <th>Művelet</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders; track order.id) {
+              <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.order_type }}</td>
+                <td>{{ order.items?.length || 0 }} db</td>
+                <td>{{ order.total_amount | number:'1.0-0' }} Ft</td>
+                <td><span class="badge badge-{{ order.status }}">{{ statusLabel(order.status) }}</span></td>
+                <td>{{ order.created_at | date:'MM.dd HH:mm' }}</td>
+                <td>
+                  <select class="status-select" [value]="order.status" (change)="updateStatus(order.id, $any($event.target).value)">
+                    @for (s of statuses; track s) {
+                      <option [value]="s" [selected]="order.status === s">{{ statusLabel(s) }}</option>
+                    }
+                  </select>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (orders.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <p>Nincs rendelés</p>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

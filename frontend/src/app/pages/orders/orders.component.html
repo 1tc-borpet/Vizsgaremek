@@ -1,0 +1,50 @@
+<div class="page-hero">
+  <h1>📦 Rendeléseim</h1>
+  <p>Kövesd nyomon a rendeléseid állapotát</p>
+</div>
+
+<div class="container section">
+  @if (loading) { <div class="spinner"></div> }
+
+  @if (!loading && orders.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">📦</div>
+      <h3>Még nincs rendelésed</h3>
+      <p>Rendelj az étlapból, és itt követheted nyomon!</p>
+      <a routerLink="/menu" class="btn btn-primary">Étlap megnyitása</a>
+    </div>
+  }
+
+  <div class="orders-list">
+    @for (order of orders; track order.id) {
+      <div class="order-card card">
+        <div class="order-header">
+          <div>
+            <h4>Rendelés #{{ order.id }}</h4>
+            <span class="order-type">{{ orderTypeLabel(order.order_type) }}</span>
+          </div>
+          <div class="order-right">
+            <span class="badge badge-{{ order.status }}">{{ statusLabel(order.status) }}</span>
+            <span class="order-date">{{ order.created_at | date:'yyyy.MM.dd HH:mm' }}</span>
+          </div>
+        </div>
+
+        <div class="order-items">
+          @for (item of order.items; track item.id) {
+            <div class="order-item">
+              <span>{{ item.menu_item?.name || 'Étel' }} × {{ item.quantity }}</span>
+              <span>{{ item.subtotal | number:'1.0-0' }} Ft</span>
+            </div>
+          }
+        </div>
+
+        <div class="order-footer">
+          <span class="order-total">Összesen: {{ order.total_amount | number:'1.0-0' }} Ft</span>
+          @if (order.status === 'pending' || order.status === 'confirmed') {
+            <a [routerLink]="['/payment', order.id]" class="btn btn-primary btn-sm">Fizetés →</a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

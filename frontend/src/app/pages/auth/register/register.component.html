@@ -1,0 +1,62 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-header">
+      <div class="auth-logo">🍽️</div>
+      <h1>Regisztráció</h1>
+      <p>Hozz létre fiókot és rendelj már ma!</p>
+    </div>
+
+    @if (error) {
+      <div class="alert alert-danger">⚠️ {{ error }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label>Teljes név *</label>
+        <input type="text" formControlName="name" placeholder="Kovács János" />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="field-error">Legalább 2 karakter szükséges.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Email cím *</label>
+        <input type="email" formControlName="email" placeholder="nev@email.com" />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <span class="field-error">Adj meg érvényes email-t.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Telefonszám</label>
+        <input type="tel" formControlName="phone" placeholder="+36 30 123 4567" />
+      </div>
+
+      <div class="form-group">
+        <label>Jelszó *</label>
+        <input type="password" formControlName="password" placeholder="Minimum 6 karakter" />
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="field-error">Legalább 6 karakter szükséges.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Jelszó megerősítése *</label>
+        <input type="password" formControlName="password_confirmation" placeholder="Jelszó ismét" />
+        @if (form.errors?.['mismatch'] && form.get('password_confirmation')?.touched) {
+          <span class="field-error">A jelszavak nem egyeznek!</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" [disabled]="loading || form.invalid">
+        @if (loading) { <span class="btn-spinner"></span> }
+        Regisztrálok
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Már van fiókod?
+      <a routerLink="/auth/login">Bejelentkezés</a>
+    </div>
+  </div>
+</div>

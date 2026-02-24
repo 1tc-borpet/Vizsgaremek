@@ -1,0 +1,101 @@
+.payment-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.payment-form {
+  h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; }
+  form { display: flex; flex-direction: column; gap: 1.2rem; }
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+
+.method-option {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { border-color: rgba(255,107,53,0.4); }
+  &.selected { border-color: var(--primary); background: rgba(255,107,53,0.1); color: var(--primary); font-weight: 600; }
+}
+
+.card-section { display: flex; flex-direction: column; gap: 1rem; }
+
+.card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.btn-full { width: 100%; justify-content: center; }
+.btn-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Order info */
+.order-info {
+  position: sticky;
+  top: 80px;
+
+  h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+
+    &.small { font-size: 0.82rem; }
+    &.total { font-size: 1.05rem; font-weight: 700; color: var(--primary); }
+  }
+
+  .summary-divider { border-top: 1px solid var(--border); margin: 0.6rem 0; }
+}
+
+/* Success */
+.success-card {
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem;
+
+  .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+  h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.8rem; color: #4caf50; }
+  p { color: var(--text-secondary); font-size: 1rem; margin-bottom: 2rem; }
+
+  .success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+
+    .btn { justify-content: center; }
+  }
+}
+
+.alert-danger {
+  background: rgba(244,67,54,0.15);
+  border: 1px solid rgba(244,67,54,0.3);
+  color: #f44336;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .payment-layout { grid-template-columns: 1fr; }
+  .order-info { position: static; }
+  .method-grid { grid-template-columns: 1fr; }
+  .card-row { grid-template-columns: 1fr; }
+}

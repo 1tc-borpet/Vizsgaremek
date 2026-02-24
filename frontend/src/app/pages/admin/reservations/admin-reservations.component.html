@@ -1,0 +1,59 @@
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">🍽️ Admin</div>
+    <nav>
+      <a routerLink="/admin/dashboard" routerLinkActive="active">📊 Dashboard</a>
+      <a routerLink="/admin/orders" routerLinkActive="active">📦 Rendelések</a>
+      <a routerLink="/admin/reservations" routerLinkActive="active">📅 Foglalások</a>
+      <a routerLink="/admin/menu-management" routerLinkActive="active">🍽️ Étlap kezelés</a>
+      <a routerLink="/" class="back-link">← Vissza a főoldalra</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <h1 class="admin-title">📅 Foglalások kezelése</h1>
+
+    @if (loading) { <div class="spinner"></div> }
+
+    @if (!loading) {
+      <div class="table-wrapper card">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Dátum</th>
+              <th>Időpont</th>
+              <th>Fők</th>
+              <th>Megjegyzés</th>
+              <th>Állapot</th>
+              <th>Művelet</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of reservations; track r.id) {
+              <tr>
+                <td>#{{ r.id }}</td>
+                <td>{{ r.reservation_date }}</td>
+                <td>{{ r.reservation_time }}</td>
+                <td>{{ r.party_size }}</td>
+                <td>{{ r.notes || '–' }}</td>
+                <td><span class="badge badge-{{ r.status }}">{{ statusLabel(r.status) }}</span></td>
+                <td>
+                  @if (r.status === 'pending') {
+                    <button class="btn btn-primary btn-sm" (click)="confirm(r.id)">✅ Megerősítés</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (reservations.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <p>Nincs foglalás</p>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>

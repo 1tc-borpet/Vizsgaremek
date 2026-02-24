@@ -1,0 +1,65 @@
+<div class="page-hero">
+  <h1>📋 Rendelés leadása</h1>
+  <p>Ellenőrizd az adatokat, majd add le a rendelést</p>
+</div>
+
+<div class="container section">
+  <div class="checkout-layout">
+    <!-- Form -->
+    <div class="checkout-form card">
+      <h3>Rendelés adatai</h3>
+
+      @if (error) {
+        <div class="alert alert-danger">⚠️ {{ error }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label>Rendelés típusa</label>
+          <div class="order-type-grid">
+            @for (type of [{val:'dine_in',label:'Helyben fogyasztás 🍽️'},{val:'takeaway',label:'Elvitelre 🥡'},{val:'delivery',label:'Kiszállítás 🚀'}]; track type.val) {
+              <label class="type-option" [class.selected]="form.get('order_type')?.value === type.val">
+                <input type="radio" formControlName="order_type" [value]="type.val" hidden />
+                {{ type.label }}
+              </label>
+            }
+          </div>
+        </div>
+
+        @if (form.get('order_type')?.value === 'delivery') {
+          <div class="form-group">
+            <label>Szállítási cím *</label>
+            <input type="text" formControlName="delivery_address" placeholder="Budapest, Fő utca 1." />
+          </div>
+        }
+
+        <div class="form-group">
+          <label>Megjegyzés (opcionális)</label>
+          <textarea formControlName="notes" placeholder="pl. allergia, különleges kérés..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" [disabled]="loading || form.invalid">
+          @if (loading) { <span class="btn-spinner"></span> }
+          Rendelés leadása →
+        </button>
+      </form>
+    </div>
+
+    <!-- Order summary -->
+    <div class="order-summary card">
+      <h3>Rendelés összesítő</h3>
+      @for (item of cart.cartItems(); track item.menuItem.id) {
+        <div class="summary-item">
+          <span>{{ item.menuItem.name }} × {{ item.quantity }}</span>
+          <span>{{ item.menuItem.price * item.quantity | number:'1.0-0' }} Ft</span>
+        </div>
+      }
+      <div class="summary-divider"></div>
+      <div class="summary-total">
+        <span>Összesen</span>
+        <span>{{ cart.totalPrice() | number:'1.0-0' }} Ft</span>
+      </div>
+      <a routerLink="/cart" class="btn btn-outline btn-full">← Vissza a kosárhoz</a>
+    </div>
+  </div>
+</div>
