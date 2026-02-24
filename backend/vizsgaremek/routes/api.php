@@ -2,12 +2,21 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\MenuCategoryController;
 use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\DashboardController;
+
+// Nyilvános auth route-ok (autentifikáció nélkül)
+Route::prefix('v1/auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+});
 
 // Nyilvános route-ok (autentifikáció nélkül)
 Route::prefix('v1')->group(function () {
@@ -22,6 +31,16 @@ Route::prefix('v1')->group(function () {
 
     // Autentifikáció szükséges route-ok
     Route::middleware('auth:sanctum')->group(function () {
+        // Auth
+        Route::post('auth/logout', [AuthController::class, 'logout']);
+        Route::post('auth/refresh-token', [AuthController::class, 'refreshToken']);
+        Route::get('auth/me', [AuthController::class, 'me']);
+        Route::post('auth/change-password', [AuthController::class, 'changePassword']);
+
+        // User profil
+        Route::get('user/profile', [UserController::class, 'show']);
+        Route::patch('user/profile', [UserController::class, 'update']);
+
         // Rendelések
         Route::post('orders', [OrderController::class, 'store']);
         Route::get('orders/{id}', [OrderController::class, 'show']);
@@ -37,16 +56,29 @@ Route::prefix('v1')->group(function () {
         // Fizetések
         Route::post('payments', [PaymentController::class, 'store']);
         Route::get('payments/{id}', [PaymentController::class, 'show']);
-
-        // Felhasználó profil
-        Route::get('user', function (Request $request) {
-            return $request->user();
-        });
     });
 });
 
 // Admin route-ok
 Route::prefix('v1/admin')->middleware('auth:sanctum')->group(function () {
+    // Dashboard statisztikák és jelentések
+    Route::get('dashboard/stats', [DashboardController::class, 'stats']);
+    Route::get('dashboard/recent-orders', [DashboardController::class, 'recentOrders']);
+    Route::get('dashboard/recent-reservations', [DashboardController::class, 'recentReservations']);
+    Route::get('dashboard/revenue-report', [DashboardController::class, 'revenueReport']);
+    Route::get('dashboard/order-status-breakdown', [DashboardController::class, 'orderStatusBreakdown']);
+    Route::get('dashboard/reservation-status-breakdown', [DashboardController::class, 'reservationStatusBreakdown']);
+    Route::get('dashboard/popular-items', [DashboardController::class, 'popularMenuItems']);
+    Route::get('dashboard/top-customers', [DashboardController::class, 'topCustomers']);
+
+    // Felhasználók kezelése
+    Route::get('users', [UserController::class, 'index']);
+    Route::get('users/{id}', [UserController::class, 'show']);
+    Route::patch('users/{id}', [UserController::class, 'update']);
+    Route::post('users/{id}/deactivate', [UserController::class, 'deactivate']);
+    Route::post('users/{id}/activate', [UserController::class, 'activate']);
+    Route::delete('users/{id}', [UserController::class, 'destroy']);
+
     // Rendeléskezelés
     Route::get('orders', [OrderController::class, 'index']);
     Route::patch('orders/{id}/status', [OrderController::class, 'updateStatus']);

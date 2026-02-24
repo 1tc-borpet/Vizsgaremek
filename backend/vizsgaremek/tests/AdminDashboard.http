@@ -1,0 +1,124 @@
+### Admin Dashboard API tesztek
+@baseUrl = http://localhost:8000/api
+@adminToken = ADMIN_TOKEN_HERE
+
+### 1. Dashboard Statisztikák (80 napra)
+GET {{baseUrl}}/v1/admin/dashboard/stats?days=80
+Authorization: Bearer {{adminToken}}
+
+### 2. Dashboard Statisztikák (30 napra)
+GET {{baseUrl}}/v1/admin/dashboard/stats?days=30
+Authorization: Bearer {{adminToken}}
+
+### 3. Legutóbbi rendelések (10 db)
+GET {{baseUrl}}/v1/admin/dashboard/recent-orders?limit=10
+Authorization: Bearer {{adminToken}}
+
+### 4. Legutóbbi rendelések - Pending státusz
+GET {{baseUrl}}/v1/admin/dashboard/recent-orders?limit=10&status=pending
+Authorization: Bearer {{adminToken}}
+
+### 5. Legutóbbi foglalások
+GET {{baseUrl}}/v1/admin/dashboard/recent-reservations?limit=10
+Authorization: Bearer {{adminToken}}
+
+### 6. Legutóbbi foglalások - Confirmed
+GET {{baseUrl}}/v1/admin/dashboard/recent-reservations?limit=10&status=confirmed
+Authorization: Bearer {{adminToken}}
+
+### 7. Bevétel jelentés - Havi (utolsó 12 hónap)
+GET {{baseUrl}}/v1/admin/dashboard/revenue-report?period=monthly&months=12
+Authorization: Bearer {{adminToken}}
+
+### 8. Bevétel jelentés - Napi (utolsó 30 nap)
+GET {{baseUrl}}/v1/admin/dashboard/revenue-report?period=daily
+Authorization: Bearer {{adminToken}}
+
+### 9. Rendelés státusz bontás
+GET {{baseUrl}}/v1/admin/dashboard/order-status-breakdown
+Authorization: Bearer {{adminToken}}
+
+### 10. Foglalás státusz bontás
+GET {{baseUrl}}/v1/admin/dashboard/reservation-status-breakdown
+Authorization: Bearer {{adminToken}}
+
+### 11. Népszerű ételek (top 10)
+GET {{baseUrl}}/v1/admin/dashboard/popular-items?limit=10
+Authorization: Bearer {{adminToken}}
+
+### 12. Legjobb ügyfelek (top 10)
+GET {{baseUrl}}/v1/admin/dashboard/top-customers?limit=10
+Authorization: Bearer {{adminToken}}
+
+### 13. Legjobb ügyfelek (top 20)
+GET {{baseUrl}}/v1/admin/dashboard/top-customers?limit=20
+Authorization: Bearer {{adminToken}}
+
+### 14. Összes rendelés (admin)
+GET {{baseUrl}}/v1/admin/orders
+Authorization: Bearer {{adminToken}}
+
+### 15. Rendelés státusz frissítése
+PATCH {{baseUrl}}/v1/admin/orders/1/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "preparing"
+}
+
+### 16. Összes foglalás (admin)
+GET {{baseUrl}}/v1/admin/reservations
+Authorization: Bearer {{adminToken}}
+
+### 17. Foglalás megerősítése
+PATCH {{baseUrl}}/v1/admin/reservations/1/confirm
+Authorization: Bearer {{adminToken}}
+
+### 18. Összes felhasználó (admin)
+GET {{baseUrl}}/v1/admin/users
+Authorization: Bearer {{adminToken}}
+
+### 19. Felhasználó részletei (admin)
+GET {{baseUrl}}/v1/admin/users/1
+Authorization: Bearer {{adminToken}}
+
+### 20. Felhasználó deaktiválása
+POST {{baseUrl}}/v1/admin/users/2/deactivate
+Authorization: Bearer {{adminToken}}
+
+### 21. Felhasználó aktiválása
+POST {{baseUrl}}/v1/admin/users/2/activate
+Authorization: Bearer {{adminToken}}
+
+### 22. Felhasználó törlése
+DELETE {{baseUrl}}/v1/admin/users/3
+Authorization: Bearer {{adminToken}}
+
+### 23. Étterem létrehozása
+POST {{baseUrl}}/v1/admin/restaurants
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Új étterem",
+  "description": "Lezáródott étterem leírása",
+  "phone": "+36201234567",
+  "address": "Budapest, Fő utca 1",
+  "image_url": "https://example.com/image.jpg",
+  "is_open": true
+}
+
+### 24. Étterem módosítása
+PATCH {{baseUrl}}/v1/admin/restaurants/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Módosított étterem",
+  "is_open": false
+}
+
+### 25. Étterem törlése
+DELETE {{baseUrl}}/v1/admin/restaurants/2
+Authorization: Bearer {{adminToken}}

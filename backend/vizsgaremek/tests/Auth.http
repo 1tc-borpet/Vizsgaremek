@@ -1,0 +1,113 @@
+### Éttermi alkalmazás - Autentifikáció tesztek
+@baseUrl = http://localhost:8000/api
+@contentType = application/json
+
+### 1. REGISZTRÁCIÓ - Új felhasználó létrehozása
+POST {{baseUrl}}/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "phone": "+36201234567",
+  "password": "Password123!",
+  "password_confirmation": "Password123!"
+}
+
+### 2. REGISZTRÁCIÓ - Hiányzó adatok (email)
+POST {{baseUrl}}/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Test User 2",
+  "phone": "+36201234568",
+  "password": "Password123!",
+  "password_confirmation": "Password123!"
+}
+
+### 3. REGISZTRÁCIÓ - Jelszavak nem egyeznek
+POST {{baseUrl}}/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Test User 3",
+  "email": "testuser3@example.com",
+  "phone": "+36201234569",
+  "password": "Password123!",
+  "password_confirmation": "DifferentPassword123!"
+}
+
+### 4. REGISZTRÁCIÓ - Már létező email
+POST {{baseUrl}}/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Duplicate User",
+  "email": "testuser@example.com",
+  "phone": "+36201234570",
+  "password": "Password123!",
+  "password_confirmation": "Password123!"
+}
+
+### 5. LOGIN - Sikeres bejelentkezés
+POST {{baseUrl}}/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+### 6. LOGIN - Hibás email
+POST {{baseUrl}}/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "nonexistent@example.com",
+  "password": "Password123!"
+}
+
+### 7. LOGIN - Hibás jelszó
+POST {{baseUrl}}/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "testuser@example.com",
+  "password": "WrongPassword123!"
+}
+
+### 8. GET PROFIL - Autentifikált felhasználó
+GET {{baseUrl}}/v1/user/profile
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 9. GET PROFIL - Admin felhasználó megtekintése (admin csak)
+GET {{baseUrl}}/v1/admin/users
+Content-Type: {{contentType}}
+Authorization: Bearer ADMIN_TOKEN_HERE
+
+### 10. LOGOUT - Kijelentkezés
+POST {{baseUrl}}/v1/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 11. REFRESH TOKEN - Új token generálása
+POST {{baseUrl}}/v1/auth/refresh-token
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 12. ME - Jelenlegi felhasználó adatai
+GET {{baseUrl}}/v1/auth/me
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 13. CHANGE PASSWORD - Jelszó módosítása
+POST {{baseUrl}}/v1/auth/change-password
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "current_password": "Password123!",
+  "password": "NewPassword123!",
+  "password_confirmation": "NewPassword123!"
+}
